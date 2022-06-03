@@ -1,3 +1,6 @@
+const Redux = require ('redux')
+const { createStore, combineReducers } = Redux
+
 /*Essa função é uma função criadora de ação com
 ou seja, ela devolve um objeto JSON
 uma ação é um objeto JSON*/
@@ -67,3 +70,50 @@ const caixaReducer = (dinheiroEmCaixa = 0, acao) => {
     //senão, somente devolver a fatia de estado envolvida
     return dinheiroEmCaixa
 }
+
+//implementar o reducer que lida com a lista de contratos
+//ele pode criar contratos e cancelar contratos
+const contratosReducer = (listaDeContratosAtual = [], acao) => {
+    if (acao.type === "CRIAR_CONTRATO"){
+        return [
+            ...listaDeContratosAtual,
+            acao.payload
+        ]
+    }
+    if (acao.type === "CANCELAR_CONTRATO"){
+        return listaDeContratosAtual.filter(contrato => contrato.nome !== acao.payload.nome)
+    }
+    return listaDeContratosAtual
+}
+
+const todosOsReducers = combineReducers({ 
+    historicoDePedidosDeCashback: historicoDePedidosDeCashbackReducer,
+    caixa: caixaReducer, 
+    contratos: contratosReducer
+  }) 
+  
+const store = createStore(todosOsReducers)
+
+//criar um contrato para o José
+const acaoContratoJose = criarContrato('José', 50)
+console.log(store.getState())
+store.dispatch(acaoContratoJose)
+console.log(store.getState())
+
+//criar um contrato para a Maria
+const acaoContratoMaria = criarContrato('Maria', 50)
+store.dispatch(acaoContratoMaria)
+console.log(store.getState())
+
+//pedido de cashback para a Maria de 10
+const acaoCashbackMaria = solicitarCashback('Maria', 10)
+store.dispatch(acaoCashbackMaria)
+console.log(store.getState())
+
+//pedido de cashback para o José de 20
+store.dispatch(solicitarCashback('José', 20))
+console.log(store.getState())
+
+//cancelar o contrato da Maria
+store.dispatch(cancelarContrato('Maria'))
+console.log(store.getState())
